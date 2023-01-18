@@ -1,8 +1,9 @@
 import { GetServerSideProps } from "next";
 import Head from "next/head";
 import Image from "next/image";
-import { useState } from "react";
-import HiddenPokemonCard from "../components/HiddenPokemonCard";
+import { useEffect, useState } from "react";
+import Button from "../components/Button";
+import HiddenPokemonCard from "../components/PokemonCard";
 import { pkmnToDto } from "../utils";
 import { PokemonData } from "../utils/types";
 
@@ -10,7 +11,7 @@ interface PokemonProps {
   data: PokemonData;
 }
 
-export default function Random(props: PokemonProps) {
+export default function Random({ data }: PokemonProps) {
   const [reveal, setReveal] = useState(false);
   const [showHint, setShowHint] = useState(false);
 
@@ -33,24 +34,21 @@ export default function Random(props: PokemonProps) {
         </div>
 
         <HiddenPokemonCard
-          pokemon={props.data}
+          pokemon={data}
           reveal={reveal}
           showHint={showHint}
+          hidden={true}
         />
 
         <div className="flex justify-center items-center flex-row">
-          <button
+          {/* <button
             onClick={() => setReveal(true)}
             className="m-2 p-2 w-32 flex justify-center items-center bg-white text-black border-red-600 border-4 rounded-md font-semibold text-2xl"
           >
             Reveal
-          </button>
-          <button
-            onClick={() => setShowHint(true)}
-            className="m-2 p-2 w-32 flex justify-center items-center bg-white text-black border-red-600 border-4 rounded-md font-semibold text-2xl"
-          >
-            Hint
-          </button>
+          </button> */}
+          <Button onClick={() => setReveal(true)}>Reveal</Button>
+          <Button onClick={() => setShowHint(true)}>Hint</Button>
         </div>
       </div>
     </>

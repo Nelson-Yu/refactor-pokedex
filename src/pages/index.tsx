@@ -10,7 +10,7 @@ interface PokemonProps {
   data: PokemonData[];
 }
 
-export default function Home(props: PokemonProps) {
+export default function Home({ data: pokemonData }: PokemonProps) {
   const router = useRouter();
   const [searchInput, setSearchInput] = useState("");
 
@@ -21,6 +21,12 @@ export default function Home(props: PokemonProps) {
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     router.push(`/pokemon/${searchInput}`);
+  };
+
+  const renderRandomPokemon = () => {
+    return pokemonData.map((pokemon) => (
+      <PokemonCard key={pokemon.id} pokemon={pokemon} hidden={false} />
+    ));
   };
 
   return (
@@ -51,9 +57,7 @@ export default function Home(props: PokemonProps) {
         </form>
 
         <div className="flex justify-center items-center">
-          {props.data.map((pokemon, index) => (
-            <PokemonCard key={index} pokemon={pokemon} />
-          ))}
+          {renderRandomPokemon()}
         </div>
       </div>
     </>
@@ -61,16 +65,46 @@ export default function Home(props: PokemonProps) {
 }
 
 export const getServerSideProps: GetServerSideProps = async () => {
-  const randomIds = Array.from({ length: 3 }, () =>
-    Math.floor(Math.random() * 906)
-  );
+  let pokemonData;
 
-  const pokemonData = [];
+  try {
+    const randomIds = Array.from({ length: 3 }, () =>
+      Math.floor(Math.random() * 906)
+    );
 
-  for (const id of randomIds) {
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
-    const data = await res.json();
-    pokemonData.push(pkmnToDto(data));
+    // charmander---------->pikachu------------------->mew
+
+    // for (const id of randomIds) {
+    //   const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`);
+    //   const data = await res.json();
+    //   pokemonData.push(pkmnToDto(data));
+    // }
+
+    // charmander--->  |
+    // pikachu--->     |
+    // mew --->        |
+
+    // [promise, promise, promise]
+    const fetchPokemonArr = randomIds.map(
+      async (id) => await fetch(`https://pokeapi.co/api/v2/pokemon/${id}`)
+    );
+
+    // Promise chained solution
+    // pokemonData = await Promise.all(fetchPokemonArr)
+    //   .then((res) => Promise.all(res.map((r) => r.json())))
+    //   .then((data) => data.map((d) => pkmnToDto(d)));
+
+    // Non promise-chained solution
+    // res = [response1, response2, response3]
+    const responses = await Promise.all(fetchPokemonArr);
+
+    // data = [responseData1, responseData2, responseData3]
+    const data = await Promise.all(responses.map((r) => r.json()));
+
+    // pokemonData = [data1, data2, data3]
+    pokemonData = data.map((d) => pkmnToDto(d));
+  } catch (err) {
+    console.error(err);
   }
 
   return {

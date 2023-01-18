@@ -8,7 +8,7 @@ interface PokemonProps {
   data: PokemonData;
 }
 
-export default function Pokemon(props: PokemonProps) {
+export default function Pokemon({ data }: PokemonProps) {
   return (
     <>
       <Head>
@@ -18,7 +18,7 @@ export default function Pokemon(props: PokemonProps) {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <div className="flex justify-center items-center h-screen w-screen">
-        <PokemonCard pokemon={props.data} />
+        <PokemonCard pokemon={data} hidden={false} />
       </div>
     </>
   );
